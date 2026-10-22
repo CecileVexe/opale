@@ -1,7 +1,6 @@
-# --- Documentation locale (non versionnée, à la demande de Cécile) ---
 /docs/
 
-# --- Secrets, identifiants, environnement : jamais dans le dépôt ---
+# --- Secrets, identifiants, environnement ---
 .env
 .env.*
 !.env.example
