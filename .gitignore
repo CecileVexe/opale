@@ -1,0 +1,64 @@
+# --- Documentation locale (non versionnée, à la demande de Cécile) ---
+/docs/
+
+# --- Secrets, identifiants, environnement : jamais dans le dépôt ---
+.env
+.env.*
+!.env.example
+*.pem
+*.p8
+*.p12
+*.key
+*.jks
+*.keystore
+!debug.keystore
+*.mobileprovision
+google-services.json
+GoogleService-Info.plist
+client_secret*.json
+credentials*.json
+service-account*.json
+*.secret
+secrets/
+
+# --- Dépendances ---
+node_modules/
+
+# --- Expo ---
+.expo/
+.expo-shared/
+dist/
+web-build/
+expo-env.d.ts
+
+# --- Code natif généré (prebuild) ---
+/ios/
+/android/
+
+# --- Builds ---
+*.apk
+*.aab
+*.ipa
+*.app
+*.dSYM.zip
+build/
+
+# --- Tests et outils ---
+coverage/
+*.tsbuildinfo
+.eslintcache
+
+# --- Journaux ---
+npm-debug.*
+yarn-debug.*
+yarn-error.*
+*.log
+
+# --- Systèmes et éditeurs ---
+.DS_Store
+Thumbs.db
+desktop.ini
+.idea/
+.vscode/*
+!.vscode/extensions.json
+*.swp
