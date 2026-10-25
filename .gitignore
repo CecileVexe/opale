@@ -30,9 +30,13 @@ dist/
 web-build/
 expo-env.d.ts
 
+.metro-health-check*
+
 # --- Code natif généré (prebuild) ---
 /ios/
 /android/
+.kotlin/
+*.orig.*
 
 # --- Builds ---
 *.apk
