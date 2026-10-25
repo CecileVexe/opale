@@ -29,5 +29,18 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     },
     predictiveBackGestureEnabled: false,
   },
-  plugins: ['expo-dev-client'],
+  plugins: [
+    'expo-dev-client',
+    'expo-font',
+    [
+      'expo-splash-screen',
+      {
+        // Opaline `bg` token (light / dark): app config cannot import src/ without tsx.
+        backgroundColor: '#F8F3FC',
+        image: './assets/splash-icon.png',
+        imageWidth: 120,
+        dark: { backgroundColor: '#1A1224', image: './assets/splash-icon.png' },
+      },
+    ],
+  ],
 });
