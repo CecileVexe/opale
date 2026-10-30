@@ -1,7 +1,10 @@
-name: Android build (manual)
+name: Android build
 
+# Manual for regular work; automatic on Dependabot PRs, which may touch native modules.
 on:
   workflow_dispatch:
+  pull_request:
+    branches: [develop, main]
 
 permissions:
   contents: read
@@ -9,6 +12,7 @@ permissions:
 jobs:
   android:
     name: Build Android app (debug)
+    if: github.event_name == 'workflow_dispatch' || github.event.pull_request.user.login == 'dependabot[bot]'
     runs-on: ubuntu-latest
     timeout-minutes: 45
     steps:
