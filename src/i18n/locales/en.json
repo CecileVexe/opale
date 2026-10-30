@@ -1,0 +1,25 @@
+{
+  "common": {
+    "continue": "Continue",
+    "skip": "Skip",
+    "back": "Back",
+    "close": "Close",
+    "save": "Save",
+    "cancel": "Cancel",
+    "later": "Later"
+  },
+  "tabs": {
+    "home": "Home",
+    "calendar": "Calendar",
+    "stats": "Stats",
+    "settings": "Settings"
+  },
+  "language": {
+    "fr": "Français",
+    "en": "English"
+  },
+  "units": {
+    "day_one": "{{count}} day",
+    "day_other": "{{count}} days"
+  }
+}
