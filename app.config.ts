@@ -32,6 +32,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   plugins: [
     'expo-dev-client',
     'expo-font',
+    ['expo-localization', { supportsRTL: false, supportedLocales: ['fr', 'en'] }],
     [
       'expo-splash-screen',
       {
