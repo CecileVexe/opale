@@ -1,0 +1,55 @@
+name: Android build (manual)
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  android:
+    name: Build Android app (debug)
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: npm
+      - uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: 17
+      # The Gradle cache is only saved by runs on the default branch (develop).
+      - uses: gradle/actions/setup-gradle@v6
+      - run: npm ci
+      - name: Read the NDK version required by React Native
+        id: ndk
+        run: |
+          version=$(sed -nE 's/^ndkVersion = "(.*)"/\1/p' node_modules/react-native/gradle/libs.versions.toml)
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+      - name: Cache the NDK
+        id: ndk-cache
+        uses: actions/cache@v6
+        with:
+          path: ${{ env.ANDROID_HOME }}/ndk/${{ steps.ndk.outputs.version }}
+          key: ndk-${{ runner.os }}-${{ steps.ndk.outputs.version }}
+      # Gradle's on-the-fly NDK download can come back corrupted: install it up front, with retries.
+      - name: Install the NDK
+        if: steps.ndk-cache.outputs.cache-hit != 'true'
+        run: |
+          for attempt in 1 2 3; do
+            if yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" "ndk;${{ steps.ndk.outputs.version }}" > /dev/null; then
+              exit 0
+            fi
+            echo "NDK install attempt $attempt failed, retrying"
+            rm -rf "$ANDROID_HOME/ndk/${{ steps.ndk.outputs.version }}"
+            sleep 10
+          done
+          exit 1
+      - name: Generate the native project
+        run: npx expo prebuild --platform android --no-install
+      - name: Gradle assembleDebug (arm64-v8a only)
+        working-directory: android
+        run: ./gradlew assembleDebug --no-daemon -PreactNativeArchitectures=arm64-v8a
