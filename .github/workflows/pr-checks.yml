@@ -97,8 +97,40 @@ jobs:
       - run: npm ci
       - run: npx expo export --platform android --platform ios --output-dir dist
 
+  native-changes:
+    name: Detect native changes
+    runs-on: ubuntu-latest
+    outputs:
+      native: ${{ steps.diff.outputs.native }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      - id: diff
+        name: Compare with the base commit
+        env:
+          BASE: ${{ github.event_name == 'pull_request' && github.event.pull_request.base.sha || github.event.before }}
+          HEAD: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.sha }}
+        run: |
+          # Without a usable base (new branch, forced history), build to be safe.
+          if [ -z "$BASE" ] || ! git cat-file -e "$BASE^{commit}" 2>/dev/null; then
+            echo "native=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          changed=$(git diff --name-only "$BASE" "$HEAD")
+          echo "$changed"
+          if echo "$changed" | grep -qE '^(package\.json|package-lock\.json|app\.config\.ts|eas\.json|assets/|\.github/workflows/pr-checks\.yml)'; then
+            echo "native=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "native=false" >> "$GITHUB_OUTPUT"
+            echo "::notice title=Android build skipped::No native change: the JS bundle job covers this PR."
+          fi
+
   android:
     name: Build Android app (debug)
+    needs: native-changes
+    # A job skipped by its condition counts as successful for the required status checks.
+    if: needs.native-changes.outputs.native == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 45
     steps:
@@ -111,10 +143,11 @@ jobs:
         with:
           distribution: temurin
           java-version: 17
+      # Cache is written on develop/main and read by pull requests.
       - uses: gradle/actions/setup-gradle@v6
       - run: npm ci
       - name: Generate the native project
         run: npx expo prebuild --platform android --no-install
-      - name: Gradle assembleDebug
+      - name: Gradle assembleDebug (arm64-v8a only)
         working-directory: android
-        run: ./gradlew assembleDebug --no-daemon
+        run: ./gradlew assembleDebug --no-daemon -PreactNativeArchitectures=arm64-v8a
