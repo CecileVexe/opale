@@ -1,0 +1,120 @@
+name: PR checks
+
+on:
+  pull_request:
+    branches: [develop, main]
+  push:
+    branches: [develop, main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pr-checks-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  NODE_VERSION: 22
+
+jobs:
+  quality:
+    name: Quality (types, lint, rules, dependencies)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+      - run: npm ci
+
+      - name: TypeScript
+        run: npm run typecheck
+
+      - name: ESLint and Prettier (errors block, warnings are reported)
+        run: node scripts/eslint-annotate.mjs
+
+      - name: Unused or missing dependencies (depcheck)
+        run: npx --yes depcheck@1.4.7
+
+      - name: No tracking or analytics SDK
+        run: node scripts/check-forbidden-deps.mjs
+
+      - name: Expo project health (expo-doctor)
+        run: npx expo-doctor
+        env:
+          EXPO_DOCTOR_SKIP_DEPENDENCY_VERSION_CHECK: 1
+
+      - name: Expo SDK patch versions (reported, not blocking)
+        run: |
+          if ! npx expo install --check; then
+            echo "::warning title=Expo versions::Some packages do not match the patch versions expected by the Expo SDK. Run: npx expo install --fix"
+          fi
+
+  security:
+    name: Security (CVE, secrets)
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: read
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v7
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: npm audit (critical blocks, others are reported)
+        run: node scripts/audit-report.mjs
+
+      - name: Secret scan (gitleaks)
+        uses: gitleaks/gitleaks-action@v3
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  tests:
+    name: Unit tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+      - run: npm ci
+      - run: npx jest --ci
+
+  bundle:
+    name: Build JS bundle (Android, iOS)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+      - run: npm ci
+      - run: npx expo export --platform android --platform ios --output-dir dist
+
+  android:
+    name: Build Android app (debug)
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+      - uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: 17
+      - uses: gradle/actions/setup-gradle@v6
+      - run: npm ci
+      - name: Generate the native project
+        run: npx expo prebuild --platform android --no-install
+      - name: Gradle assembleDebug
+        working-directory: android
+        run: ./gradlew assembleDebug --no-daemon
