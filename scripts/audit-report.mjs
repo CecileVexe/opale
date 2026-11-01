@@ -1,7 +1,7 @@
 import { execFileSync } from 'node:child_process';
 import { appendFileSync } from 'node:fs';
 
-const BLOCKING = new Set(['critical']);
+const BLOCKING = new Set(['critical', 'high']);
 
 function runAudit() {
   try {
@@ -12,7 +12,19 @@ function runAudit() {
   }
 }
 
-const report = JSON.parse(runAudit());
+const output = runAudit();
+let report;
+try {
+  report = JSON.parse(output);
+} catch {
+  report = { error: { summary: output || 'npm audit returned no output' } };
+}
+if (report.error) {
+  // An audit that could not run must never look like "no vulnerability".
+  const reason = report.error.summary || report.error.detail || 'network or registry error';
+  console.log(`::error title=npm audit failed::${reason}`);
+  process.exit(1);
+}
 const vulnerabilities = Object.values(report.vulnerabilities ?? {});
 const counts = report.metadata?.vulnerabilities ?? {};
 
@@ -41,7 +53,7 @@ if (process.env.GITHUB_STEP_SUMMARY) {
 
 const blocking = vulnerabilities.filter((v) => BLOCKING.has(v.severity));
 if (blocking.length > 0) {
-  console.log(`${blocking.length} critical vulnerability(ies): merge blocked.`);
+  console.log(`${blocking.length} high or critical vulnerability(ies): merge blocked.`);
   process.exit(1);
 }
-console.log(`${vulnerabilities.length} non-critical vulnerability(ies), reported as warnings.`);
+console.log(`${vulnerabilities.length} moderate or low vulnerability(ies), reported as warnings.`);
