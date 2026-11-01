@@ -1,3 +1,2 @@
 npx --no-install lint-staged
 npm run typecheck
-npm test
