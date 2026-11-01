@@ -54,9 +54,5 @@
     "eslint-plugin-react-native-a11y": {
       "eslint": ">=8"
     }
-  },
-  "lint-staged": {
-    "*.{ts,tsx,js,cjs,mjs}": "eslint",
-    "*.{json,md,yml,yaml}": "prettier --check"
   }
 }
