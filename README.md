@@ -41,7 +41,7 @@ Les valeurs locales (identifiants Google, plus tard) se mettent dans `.env.local
 ## Qualité
 
 - Un **hook de pré-commit** (husky) lance ESLint sur les fichiers modifiés, la vérification de formatage, `tsc` et **tous les tests unitaires**. Les erreurs bloquent le commit, les avertissements non. Les tests allongent le commit de quelques dizaines de secondes. Il s'installe avec `npm install` (ou `npm run prepare`).
-- La **CI** (GitHub Actions) tourne sur chaque PR vers `develop` ou `main` : types, ESLint, formatage et fins de ligne, dépendances inutilisées, SDK de suivi, CVE critiques, secrets, tests dans plusieurs fuseaux horaires, bundle JavaScript. Les avertissements et les CVE non critiques sont signalés sans bloquer.
+- La **CI** (GitHub Actions) tourne sur chaque PR vers `develop` ou `main` : types, ESLint, formatage et fins de ligne, dépendances inutilisées, SDK de suivi, CVE élevées ou critiques, secrets, tests dans plusieurs fuseaux horaires, bundle JavaScript. Les avertissements et les CVE modérées ou faibles sont signalés sans bloquer.
 - Le **build Android** complet est lancé à la demande (onglet Actions, « Android build »), et automatiquement sur les PR de Dependabot.
 - Règles de code appliquées par ESLint : aucun texte en dur dans les écrans, pas de `console`, pas de calcul de jours en multiples de 24 heures, règles d'accessibilité React Native.
 

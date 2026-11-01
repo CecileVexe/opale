@@ -68,7 +68,7 @@ jobs:
         with:
           node-version: ${{ env.NODE_VERSION }}
 
-      - name: npm audit (critical blocks, others are reported)
+      - name: npm audit (high and critical block, others are reported)
         run: node scripts/audit-report.mjs
 
       - name: Secret scan (gitleaks)

@@ -52,7 +52,7 @@
   },
   "overrides": {
     "eslint-plugin-react-native-a11y": {
-      "eslint": "$eslint"
+      "eslint": ">=8"
     }
   },
   "lint-staged": {

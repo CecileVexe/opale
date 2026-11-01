@@ -40,7 +40,7 @@ npm run test:tz    # tests dans plusieurs fuseaux horaires
 
 - **Ne pas lancer de tests, de lint ni de typecheck à chaque ajout ou modification** : le hook de pré-commit et la CI préviennent s'il y a un souci. On ne lance une vérification que pour diagnostiquer une panne ou si l'utilisatrice la demande.
 - Le hook de pré-commit (husky) bloque le commit tant que ceci ne passe pas : ESLint sur les fichiers modifiés, vérification de formatage, `tsc` et **tous les tests unitaires**. Les erreurs bloquent, les avertissements non.
-- La CI (`.github/workflows/pr-checks.yml`) bloque la fusion sur : types, ESLint, formatage, dépendances inutilisées, SDK de suivi, CVE critique, secrets, tests (dont multi-fuseaux), bundle JS. Les avertissements et les CVE non critiques sont signalés sans bloquer.
+- La CI (`.github/workflows/pr-checks.yml`) bloque la fusion sur : types, ESLint, formatage, dépendances inutilisées, SDK de suivi, CVE élevée ou critique, secrets, tests (dont multi-fuseaux), bundle JS. Les avertissements et les CVE modérées ou faibles sont signalés sans bloquer.
 - Le build Android (`android-build.yml`) est manuel, sauf sur les PR de Dependabot.
 
 ## Façon de travailler
