@@ -21,7 +21,7 @@ npx expo-doctor             # diagnose dependency and config issues
 npx expo install --fix      # fix incompatible package versions
 ```
 
-Run lint and typecheck before declaring any task done.
+Do not run tests, lint or typecheck after each change: the pre-commit hook (ESLint, formatting, `tsc` and all unit tests) and the CI do it. Run one only to diagnose a failure or when asked (see CLAUDE.md).
 
 ## Navigation & Routing
 
