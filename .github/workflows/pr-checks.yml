@@ -34,6 +34,9 @@ jobs:
       - name: ESLint and Prettier (errors block, warnings are reported)
         run: node scripts/eslint-annotate.mjs
 
+      - name: Formatting and LF line endings (Prettier, all files)
+        run: npm run format:check
+
       - name: Unused or missing dependencies (depcheck)
         run: npx --yes depcheck@1.4.7
 
@@ -84,6 +87,8 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npx jest --ci
+      - name: Tests in several time zones (daylight saving, UTC+14, UTC-11)
+        run: node scripts/test-timezones.mjs
 
   bundle:
     name: Build JS bundle (Android, iOS)
