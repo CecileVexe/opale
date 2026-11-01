@@ -1,26 +1,18 @@
-import { createContext, useContext, useMemo, useState, type ReactNode } from 'react';
+import { useMemo, useState, type ReactNode } from 'react';
 import { useColorScheme } from 'react-native';
 
 import { resolveScheme, type ThemePreference } from './scheme';
-import { colors, shadows, type ThemeName } from './tokens';
+import ThemeContext, { type Theme } from './ThemeContext';
+import { colors, shadows } from './tokens';
 
-export type Theme = {
-  scheme: ThemeName;
-  colors: (typeof colors)[ThemeName];
-  shadows: (typeof shadows)[ThemeName];
-  preference: ThemePreference;
-  setPreference: (preference: ThemePreference) => void;
-};
-
-const ThemeContext = createContext<Theme | null>(null);
-
-type Props = {
-  /** Stored preference; persisted with the profile from phase 2 on. */
+interface ThemeProviderProps {
   initialPreference?: ThemePreference;
   children: ReactNode;
-};
+}
 
-export function ThemeProvider({ initialPreference = 'system', children }: Props) {
+const ThemeProvider = (props: ThemeProviderProps) => {
+  const { initialPreference = 'system', children } = props;
+
   const systemScheme = useColorScheme();
   const [preference, setPreference] = useState<ThemePreference>(initialPreference);
   const scheme = resolveScheme(preference, systemScheme);
@@ -37,10 +29,6 @@ export function ThemeProvider({ initialPreference = 'system', children }: Props)
   );
 
   return <ThemeContext.Provider value={theme}>{children}</ThemeContext.Provider>;
-}
+};
 
-export function useTheme(): Theme {
-  const theme = useContext(ThemeContext);
-  if (!theme) throw new Error('useTheme must be used inside <ThemeProvider>');
-  return theme;
-}
+export default ThemeProvider;
