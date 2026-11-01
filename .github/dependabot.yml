@@ -1,0 +1,75 @@
+version: 2
+
+updates:
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+    open-pull-requests-limit: 5
+    commit-message:
+      prefix: 'chore(deps)'
+    groups:
+      # Expo pins its packages to the SDK: they move together, in one PR.
+      expo-sdk-security:
+        applies-to: security-updates
+        patterns:
+          - 'expo'
+          - 'expo-*'
+          - '@expo/*'
+          - '@expo-google-fonts/*'
+          - 'jest-expo'
+          - 'eslint-config-expo'
+          - 'react'
+          - 'react-native'
+          - 'react-native-*'
+          - '@react-native/*'
+          - '@types/react'
+      expo-sdk:
+        applies-to: version-updates
+        patterns:
+          - 'expo'
+          - 'expo-*'
+          - '@expo/*'
+          - '@expo-google-fonts/*'
+          - 'jest-expo'
+          - 'eslint-config-expo'
+          - 'react'
+          - 'react-native'
+          - 'react-native-*'
+          - '@react-native/*'
+          - '@types/react'
+        update-types: [patch]
+      dev-tooling:
+        applies-to: version-updates
+        dependency-type: development
+        update-types: [minor, patch]
+    ignore:
+      # Expo SDK changes (minor or major) go through `npx expo install --fix`, by hand.
+      - dependency-name: 'expo'
+        update-types: ['version-update:semver-major', 'version-update:semver-minor']
+      - dependency-name: 'expo-*'
+        update-types: ['version-update:semver-major', 'version-update:semver-minor']
+      - dependency-name: '@expo/*'
+        update-types: ['version-update:semver-major', 'version-update:semver-minor']
+      - dependency-name: 'react-native'
+        update-types: ['version-update:semver-major', 'version-update:semver-minor']
+      - dependency-name: 'react-native-*'
+        update-types: ['version-update:semver-major', 'version-update:semver-minor']
+      - dependency-name: 'react'
+        update-types: ['version-update:semver-major', 'version-update:semver-minor']
+      - dependency-name: 'jest-expo'
+        update-types: ['version-update:semver-major', 'version-update:semver-minor']
+      - dependency-name: 'eslint-config-expo'
+        update-types: ['version-update:semver-major', 'version-update:semver-minor']
+
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+    commit-message:
+      prefix: 'ci(deps)'
+    groups:
+      github-actions:
+        patterns: ['*']
