@@ -38,6 +38,22 @@ const CASES: Record<string, LintCase> = {
     filePath: 'src/ui/Sample.tsx',
     code: `import { Pressable } from 'react-native';\nexport const A = () => <Pressable accessibilityRole="button" onPress={() => {}} />;\n`,
   },
+  functionComponent: {
+    filePath: 'src/ui/Sample.tsx',
+    code: `import { View } from 'react-native';\nexport default function Sample() { return <View />; }\n`,
+  },
+  arrowComponent: {
+    filePath: 'src/ui/Sample.tsx',
+    code: `import { View } from 'react-native';\nconst Sample = () => <View />;\nexport default Sample;\n`,
+  },
+  typeProps: {
+    filePath: 'src/ui/Sample.tsx',
+    code: `import { View } from 'react-native';\ntype Props = { a: string };\nconst Sample = (props: Props) => <View accessibilityLabel={props.a} />;\nexport default Sample;\n`,
+  },
+  interfaceProps: {
+    filePath: 'src/ui/Sample.tsx',
+    code: `import { View } from 'react-native';\ninterface Props { a: string }\nconst Sample = (props: Props) => <View accessibilityLabel={props.a} />;\nexport default Sample;\n`,
+  },
   clickableInsideAccessible: {
     filePath: 'src/ui/Sample.tsx',
     code:
@@ -69,6 +85,18 @@ describe('code rules', () => {
     const rule = 'no-restricted-syntax';
     expect(countRule(messagesOf('msPerDayInTest'), rule)).toBe(0);
     expect(countRule(messagesOf('otherDurations'), rule)).toBe(0);
+  });
+
+  it('requires components to be arrow functions assigned to a const', () => {
+    const rule = 'react/function-component-definition';
+    expect(countRule(messagesOf('functionComponent'), rule)).toBe(1);
+    expect(countRule(messagesOf('arrowComponent'), rule)).toBe(0);
+  });
+
+  it('requires props to be declared with an interface', () => {
+    const rule = '@typescript-eslint/consistent-type-definitions';
+    expect(countRule(messagesOf('typeProps'), rule)).toBe(1);
+    expect(countRule(messagesOf('interfaceProps'), rule)).toBe(0);
   });
 
   it('enforces accessibility props on touchables', () => {

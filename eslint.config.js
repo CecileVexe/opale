@@ -67,6 +67,11 @@ module.exports = defineConfig([
     plugins: { 'react-native-a11y': reactNativeA11y },
     rules: {
       'no-restricted-syntax': ['error', ...daySelectors, ...textSelectors],
+      'react/function-component-definition': [
+        'error',
+        { namedComponents: 'arrow-function', unnamedComponents: 'arrow-function' },
+      ],
+      '@typescript-eslint/consistent-type-definitions': ['error', 'interface'],
       'react-native-a11y/has-accessibility-props': 'error',
       'react-native-a11y/has-valid-accessibility-actions': 'error',
       'react-native-a11y/has-valid-accessibility-descriptors': 'error',

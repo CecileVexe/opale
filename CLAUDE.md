@@ -31,6 +31,46 @@ Application mobile de suivi du cycle menstruel (iOS et Android, français et ang
 - Utiliser `npx expo install <paquet>` pour ajouter une dépendance, jamais `npm install` seul.
 - Les tests unitaires couvrent toute la logique ; pas de tests d'écrans pour l'instant.
 
+## Composants React
+
+Un composant par fichier, écrit comme une `const` fléchée (jamais une `function`), avec les props déclarées en `interface` et un `export default` à la fin. ESLint l'impose (`react/function-component-definition`, `@typescript-eslint/consistent-type-definitions`). Ordre du fichier :
+
+1. imports ;
+2. interfaces des props ;
+3. constantes globales, s'il y en a (`StyleSheet.create`, valeurs fixes) ;
+4. le composant : `const Nom = (props: NomProps) => {`, puis la déstructuration `const { … } = props;`, puis la logique (hooks, calculs), puis un seul `return` de JSX ;
+5. `export default Nom;`.
+
+```tsx
+import { View } from 'react-native';
+
+import Text from '../Text';
+
+export interface BadgeProps {
+  value: string;
+}
+
+const styles = StyleSheet.create({ badge: { padding: 4 } });
+
+const Badge = (props: BadgeProps) => {
+  const { value } = props;
+
+  const { colors } = useTheme();
+
+  return (
+    <View style={[styles.badge, { backgroundColor: colors.accent }]}>
+      <Text>{value}</Text>
+    </View>
+  );
+};
+
+export default Badge;
+```
+
+- Un dossier par composant (`Badge/Badge.tsx`, `Badge/index.ts`) ; `index.ts` ré-exporte le défaut : `export { default, type BadgeProps } from './Badge';`. On importe `import Badge from '../Badge';`.
+- Les sous-composants vont dans leur propre fichier. Les hooks et les fonctions utilitaires restent dans des fichiers `.ts`, sans règle particulière.
+- Un composant qui a deux rendus possibles (par exemple page et modale) délègue à deux composants et choisit avec un ternaire dans son seul `return`, au lieu de plusieurs `return`.
+
 ## Vérifications
 
 ```bash
